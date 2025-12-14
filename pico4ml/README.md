@@ -7,8 +7,13 @@ This subproject contains:
 - `Pico4ML_USB_Controller.ino` — Arduino firmware exposing a serial command protocol over USB CDC.
 - `pico4ml_controller.py` — Python API for interacting with the device.
 - `aircraft_logger.py` — Example PiAware integration and motion-triggered capture.
+- `examples/` — small examples, including `multi_cam_capture.py` and `ov5642_config_example.ino`.
 - `tests/` — unit tests for the Python controller using a `MockSerial`.
 - `requirements.txt` — Python runtime requirements.
+
+- CI: `/.github/workflows/ci.yml` — runs Python tests; optional Arduino compile job available via `workflow_dispatch` (manual run).
+
+![CI](https://github.com/chadsteeleco-prog/Node1/actions/workflows/ci.yml/badge.svg)
 
 Hardware library support
 

@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r pico4ml/requirements.txt
+      - name: Run tests
+        run: |
+          cd pico4ml
+          pytest -q
+
+  # Optional Arduino compilation job. Enable by setting `run-arduino` to true
+  arduino-build:
+    if: github.event_name == 'workflow_dispatch' # run manually by default
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Arduino CLI
+        uses: arduino/setup-arduino-cli@v1
+      - name: Install RP2040 core
+        run: |
+          arduino-cli core update-index
+          arduino-cli core install earlephilhower:rp2040
+      - name: Install libraries
+        run: |
+          arduino-cli lib update-index
+          arduino-cli lib install "ArduCAM"
+          arduino-cli lib install "Adafruit GFX Library"
+          arduino-cli lib install "Adafruit ST7735 and ST7789 Library"
+          arduino-cli lib install "SparkFun LSM6DS3 Breakout"
+      - name: Compile sketch
+        run: |
+          arduino-cli compile --fqbn earlephilhower:rp2040:rpipico pico4ml/Pico4ML_USB_Controller.ino
