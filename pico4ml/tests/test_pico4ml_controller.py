@@ -32,6 +32,8 @@ class MockSerial:
     def write(self, data: bytes):
         cmd = data.decode('ascii', errors='ignore')
         cmd = cmd.strip()
+        # record last command for tests
+        self.last_cmd = cmd
         if cmd == 'CAPTURE':
             header = f'JPEG {len(SMALL_JPEG)}\n'.encode('ascii')
             with self.lock:
@@ -151,6 +153,7 @@ def test_status_and_setters():
     assert 'FW' in status
     assert pico.set_resolution('QVGA') is True
     assert pico.set_quality(50) is True
+    assert mock.last_cmd == 'SETQ:50'
     info = pico.get_info()
     assert info.get('FW', '').startswith('pico4ml-fw')
 

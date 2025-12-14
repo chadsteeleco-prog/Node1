@@ -25,9 +25,8 @@ jobs:
           cd pico4ml
           pytest -q
 
-  # Optional Arduino compilation job. Enable by setting `run-arduino` to true
+  # Arduino compilation job: runs on pushes and tag events and uploads artifacts
   arduino-build:
-    if: github.event_name == 'workflow_dispatch' # run manually by default
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -46,4 +45,17 @@ jobs:
           arduino-cli lib install "SparkFun LSM6DS3 Breakout"
       - name: Compile sketch
         run: |
-          arduino-cli compile --fqbn earlephilhower:rp2040:rpipico pico4ml/Pico4ML_USB_Controller.ino
+          mkdir -p build/artifacts
+          arduino-cli compile --fqbn earlephilhower:rp2040:rpipico --output-dir build/artifacts pico4ml/Pico4ML_USB_Controller.ino
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pico4ml-firmware
+          path: build/artifacts
+      - name: Publish artifact to GitHub Release (on tags)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/artifacts/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

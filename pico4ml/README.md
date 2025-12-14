@@ -11,7 +11,7 @@ This subproject contains:
 - `tests/` — unit tests for the Python controller using a `MockSerial`.
 - `requirements.txt` — Python runtime requirements.
 
-- CI: `/.github/workflows/ci.yml` — runs Python tests; optional Arduino compile job available via `workflow_dispatch` (manual run).
+- CI: `/.github/workflows/ci.yml` — runs Python tests; Arduino firmware is now compiled on pushes and tag events and built artifacts are uploaded and attached to releases when a tag (e.g. `v0.2.0`) is pushed.
 
 ![CI](https://github.com/chadsteeleco-prog/Node1/actions/workflows/ci.yml/badge.svg)
 
@@ -84,7 +84,8 @@ Command protocol
 - `STATUS` : Multi-line status: `FW:..., CAMERA:..., IMU:..., LCD:..., END`.
 - `DISPLAY:text` : Show `text` on LCD, responds `OK`.
 - `SETRES:name` : Set resolution (`VGA`, `QVGA`, `QQVGA`) — responds `OK`.
-- `SETQ:n` : Set JPEG quality (0-100) — responds `OK`.
+- - `SETQ:n` : Set JPEG quality (0-100) — responds `OK`.
+	- Notes: When `OV5642_CONFIG` is enabled the firmware will attempt to apply a conservative JPEG-quality mapping to the OV5642 sensor using `OV5642_set_JPEG_quality()`. The mapping is heuristic and module-specific; tune as needed for your hardware.
 - `INFO` : Returns firmware info lines then `OK`.
 
 Python API additions

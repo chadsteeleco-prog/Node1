@@ -114,8 +114,23 @@ static void OV5642_set_JPEG_size(const char *name) {
 }
 
 static void OV5642_set_JPEG_quality(int q) {
-  // Simple heuristic: map [0,100] to some register changes; this is module-specific.
-  (void)q; // placeholder; advanced tuning requires per-module calibration.
+  if (q < 0) q = 0;
+  if (q > 100) q = 100;
+  // Heuristic mapping: map quality [0,100] -> encoder scale bytes.
+  // Different modules may respond differently; these are conservative
+  // changes that adjust internal encoder parameters without drastic
+  // sensor reconfiguration. Users with specific modules should tune
+  // these register values for best results.
+  uint8_t scaled = (uint8_t)((q * 255) / 100);
+
+  // Example registers that influence JPEG/ISP compression behavior on
+  // some OV5642 variants. These writes are conservative; if you enable
+  // OV5642_CONFIG and call this on a real module, monitor results and
+  // tune as needed.
+  ov5642_write_reg_i2c(0x4407, scaled); // encoder scale heuristic
+  ov5642_write_reg_i2c(0x4408, 0x00 + (scaled >> 2));
+  ov5642_write_reg_i2c(0x4409, 0x00 + (scaled >> 4));
+  delay(20);
 }
 
 #endif // SENSOR_OV5642_H

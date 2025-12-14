@@ -273,6 +273,9 @@ void handleSetQ(int q) {
   if (q < 0) q = 0;
   if (q > 100) q = 100;
   jpegQuality = q;
+#ifdef OV5642_CONFIG
+  OV5642_set_JPEG_quality(jpegQuality);
+#endif
   Serial.println("OK");
 }
 
