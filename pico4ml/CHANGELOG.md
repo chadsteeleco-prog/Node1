@@ -16,3 +16,9 @@ All notable changes to the `pico4ml` subproject are documented here.
 
 ## Notes
 - Sensor sequences may need tuning for some OV5642 module revisions. See `pico4ml/README.md` for details and enabling `OV5642_CONFIG` or `OV5642_INLINE_INIT`.
+
+## 0.2.1 - 2025-12-14
+
+- CI: Arduino firmware is now compiled on pushes and tag events; build artifacts are uploaded and attached to GitHub releases when a tag is pushed.
+- OV5642: added `OV5642_set_JPEG_quality()` (conservative heuristic mapping) and wired runtime `SETQ:` to apply quality when `OV5642_CONFIG` is enabled.
+- Tests: added assertion that `SETQ` command is emitted by the Python controller tests.
