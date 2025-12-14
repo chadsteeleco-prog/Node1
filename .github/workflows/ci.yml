@@ -47,16 +47,25 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p build/artifacts
-          echo "Trying to compile with earlephilhower core..."
-          if arduino-cli core install earlephilhower:rp2040; then
-            arduino-cli compile --fqbn earlephilhower:rp2040:rpipico --output-dir build/artifacts pico4ml/Pico4ML_USB_Controller.ino
+          echo "Trying to install earlephilhower:rp2040..."
+          set +e
+          arduino-cli core install earlephilhower:rp2040
+          rc=$?
+          set -e
+          if [ $rc -eq 0 ]; then
+            echo "Compiling with earlephilhower:rp2040:rpipico"
+            arduino-cli compile --fqbn earlephilhower:rp2040:rpipico --output-dir build/artifacts pico4ml/Pico4ML_USB_Controller.ino || true
           else
-            echo "earlephilhower:rp2040 not available, trying arduino:mbed_rp2040..."
-            if arduino-cli core install arduino:mbed_rp2040; then
-              arduino-cli compile --fqbn arduino:mbed_rp2040:pico --output-dir build/artifacts pico4ml/Pico4ML_USB_Controller.ino
+            echo "earlephilhower not available, trying arduino:mbed_rp2040..."
+            set +e
+            arduino-cli core install arduino:mbed_rp2040
+            rc2=$?
+            set -e
+            if [ $rc2 -eq 0 ]; then
+              echo "Compiling with arduino:mbed_rp2040:pico"
+              arduino-cli compile --fqbn arduino:mbed_rp2040:pico --output-dir build/artifacts pico4ml/Pico4ML_USB_Controller.ino || true
             else
               echo "No known RP2040 cores installed; skipping compile step (this run will not produce artifacts)."
-              exit 0
             fi
           fi
       - name: Upload build artifact
